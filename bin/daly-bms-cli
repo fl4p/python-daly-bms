@@ -5,8 +5,12 @@ import json
 import logging
 import sys
 
-from dalybms import DalyBMS, DalyBMSBluetooth
-from dalybms import DalyBMSSinowealth
+try:
+    from dalybms import DalyBMS, DalyBMSBluetooth
+    from dalybms import DalyBMSSinowealth
+except:
+    from ..dalybms import DalyBMS, DalyBMSBluetooth
+    from ..dalybms import DalyBMSSinowealth
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--device",
