@@ -3,14 +3,19 @@ import argparse
 import asyncio
 import json
 import logging
-import sys
+
 
 try:
-    from dalybms import DalyBMS, DalyBMSBluetooth
-    from dalybms import DalyBMSSinowealth
+    import dalybms
 except:
-    from ..dalybms import DalyBMS, DalyBMSBluetooth
-    from ..dalybms import DalyBMSSinowealth
+    import os
+    import sys
+    if os.path.exists('../dalybms'):
+        sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
+from dalybms import DalyBMS, DalyBMSBluetooth
+from dalybms import DalyBMSSinowealth
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--device",
