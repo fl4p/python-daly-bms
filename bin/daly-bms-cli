@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 import argparse
+import asyncio
 import json
 import logging
 import sys
 
-from dalybms import DalyBMS
+from dalybms import DalyBMS, DalyBMSBluetooth
 from dalybms import DalyBMSSinowealth
 
 parser = argparse.ArgumentParser()
@@ -13,6 +14,7 @@ parser.add_argument("-d", "--device",
                     type=str, required=True)
 parser.add_argument("--uart", help="UART instead of RS485", action="store_true")
 parser.add_argument("--sinowealth", help="BMS with Sinowealth chip", action="store_true")
+parser.add_argument("--bt", help="connect using bluetooth", action="store_true")
 parser.add_argument("--status", help="show status", action="store_true")
 parser.add_argument("--soc", help="show voltage, current, SOC", action="store_true")
 parser.add_argument("--mosfet", help="show mosfet status", action="store_true")
@@ -70,11 +72,25 @@ if args.uart:
 else:
     address = 4
 
+class Async2Sync():
+    def __init__(self, *args, **kwargs):
+        self._event_loop = asyncio.get_event_loop()
+        super().__init__(*args, **kwargs)
+
+    def __getattribute__(self, item):
+        return super().__getattribute__(item)
+
+
 if args.sinowealth:
     bms = DalyBMSSinowealth(request_retries=args.retry, logger=logger)
+    bms.connect(device=args.device)
+elif args.bt:
+    bms = DalyBMSBluetooth(request_retries=args.retry, logger=logger)
+    asyncio.get_event_loop().run_until_complete(bms.connect(mac_address=args.device))
 else:
     bms = DalyBMS(request_retries=args.retry, address=address, logger=logger)
-bms.connect(device=args.device)
+    bms.connect(device=args.device)
+
 
 result = False
 
@@ -128,6 +144,7 @@ def build_mqtt_hass_config_discovery(base):
 
 def mqtt_single_out(topic, data, retain=False):
     logger.debug(f'Send data: {data} on topic: {topic}, retain flag: {retain}')
+    print('mqtt: ' + topic, data)
     mqtt_client.publish(topic, data, retain=retain)
 
 
@@ -150,6 +167,8 @@ def mqtt_iterator(result, base=''):
 
 
 def print_result(result):
+    if args.bt:
+        result = asyncio.get_event_loop().run_until_complete(result)
     if args.mqtt:
         mqtt_iterator(result)
     else:

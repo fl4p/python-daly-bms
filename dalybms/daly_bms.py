@@ -346,7 +346,7 @@ class DalyBMS:
         return {
             "soc": self.get_soc(),
             "cell_voltage_range": self.get_cell_voltage_range(),
-            "temperature_range": self.get_temperature_range(),
+            # "temperature_range": self.get_temperature_range(), # broken? TODO
             "mosfet_status": self.get_mosfet_status(),
             "status": self.get_status(),
             "cell_voltages": self.get_cell_voltages(),
