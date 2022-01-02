@@ -1,4 +1,5 @@
 import asyncio
+import math
 import subprocess
 import logging
 from bleak import BleakClient
@@ -178,3 +179,24 @@ class DalyBMSBluetooth(DalyBMS):
             "balancing_status": await self.get_balancing_status(),
             "errors": await self.get_errors()
         }
+
+    def _calc_cell_voltage_responses(self):
+
+        if not self.status:
+            self.logger.error("get_status has to be called at least once before calling get_cell_voltages")
+            return False
+
+        # each response message includes 3 cell voltages
+        if self.address == 8:
+            # via Bluetooth the BMS returns 16 frames, even when they don't have data
+            max_responses = 16
+
+
+
+
+
+
+        else:
+            # via UART/USB the BMS returns only frames that have data
+            max_responses = math.ceil(self.status["cells"] / 3)
+        return max_responses
