@@ -171,11 +171,11 @@ class DalyBMSBluetooth(DalyBMS):
         return {
             "soc": await self.get_soc(),
             "cell_voltage_range": await self.get_cell_voltage_range(),
-            # "temperature_range": await self.get_temperature_range(),
+            # "temperature_range": await self.get_temperature_range(), TODO
             "mosfet_status": await self.get_mosfet_status(),
             "status": await self.get_status(),
             "cell_voltages": await self.get_cell_voltages(),
-            "temperatures": await self.get_temperatures(),
+            # "temperatures": await self.get_temperatures(), # TODO broken?
             "balancing_status": await self.get_balancing_status(),
             "errors": await self.get_errors()
         }
